@@ -19,7 +19,7 @@ do
 		/home/jqiu/share/a.out $file > ${file%.*}".txt"
 	fi
 done
-echo -e "--------- transformation ubx file successful ---------------\n"
+echo -e "--------- transformation ubx file to txt successful ---------------\n"
 
 path=`pwd`
 
@@ -49,7 +49,7 @@ if [ ! -d "./nmea" ]; then
 	done
 fi
 echo -e "--------- get nmea(gga) files successfully -------------\n"
-/home/jqiu/PycharmProjects/data_handle/AVE_ALL_to_GGA.py
+/home/jqiu/PycharmProjects/data_handle/AVE_ALL_to_GGA.py $path'/' $F9P_file
 mv *.gga ./nmea
 
 /home/jqiu/PycharmProjects/data_handle/header_file.py $path'/' $F9P_file
@@ -85,6 +85,8 @@ do
 	fi
 done
 
-echo '</Document>' >> 'kml/'$M8T_file
-echo '</kml>' >> 'kml/'$M8T_file
+if [ -n "$M8T_file" ]; then
+	echo '</Document>' >> 'kml/'$M8T_file
+	echo '</kml>' >> 'kml/'$M8T_file
+fi
 
