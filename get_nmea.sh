@@ -13,7 +13,7 @@ if [ ! -d "./chart" ]; then
 fi
 
 for file in `ls *_F9P.ubx`
-do 
+do
 	F9P_file=${file%.*}".txt"
 	if [ ! -f "$F9P_file" ]; then
 		/home/jqiu/share/a.out $file > ${file%.*}".txt"
@@ -77,7 +77,7 @@ cd ..
 for file in `ls *.log`
 do
 	echo $file
-	final_xyz=`grep "DEBUG R AVE, tot" $file | tail -n 1`
+	final_xyz=`grep "DEBUG R AVE, tot" -a $file | tail -n 1`
 	if [ "$M8T_file" =  "" ]; then
 		/home/jqiu/PycharmProjects/data_handle/analysis_final_pos.py $path'/' $F9P_file "$final_xyz"
 	else
@@ -89,4 +89,3 @@ if [ -n "$M8T_file" ]; then
 	echo '</Document>' >> 'kml/'$M8T_file
 	echo '</kml>' >> 'kml/'$M8T_file
 fi
-
