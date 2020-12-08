@@ -22,7 +22,7 @@ done
 echo -e "--------- transformation ubx file to txt successful ---------------\n"
 
 path=`pwd`
-
+echo $path
 if [ ! -d "./nmea" ]; then
 	mkdir nmea
 	for file in `ls *.log *.ubx *.DAT`
@@ -49,6 +49,11 @@ if [ ! -d "./nmea" ]; then
 	done
 fi
 echo -e "--------- get nmea(gga) files successfully -------------\n"
+
+if [ "$F9P_file" =  "" ]; then
+	 F9P_file='noF9P'
+fi
+
 /home/jqiu/PycharmProjects/data_handle/AVE_ALL_to_GGA.py $path'/' $F9P_file
 mv *.gga ./nmea
 
@@ -78,6 +83,7 @@ for file in `ls *.log`
 do
 	echo $file
 	final_xyz=`grep "DEBUG R AVE, tot" $file | tail -n 1`
+	echo $final_xyz
 	if [ "$M8T_file" =  "" ]; then
 		/home/jqiu/PycharmProjects/data_handle/analysis_final_pos.py $path'/' $F9P_file "$final_xyz"
 	else
