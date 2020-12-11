@@ -67,31 +67,39 @@ rm kml -rf
 mkdir kml
 for file in `ls nmea/`
 do
-	/home/jqiu/nmea2kml.py "nmea/"$file > kml/${file%.*}".kml"
+	file_len=`wc -c $file | awk '{print $1}'`
+	if [ $file_len -eq 0 ];
+        then
+		rm $file
+	else
+		/home/jqiu/nmea2kml.py "nmea/"$file > 'kml/'${file%.*}".kml"
+	fi
 done
-cd kml
-for file in `ls *M8T.kml`
-do
-	sed -i '$d' $file	# delete "</Document>"
-	sed -i '$d' $file	# delete "</kml>"
-done
-cd ..
 echo -e "--------- get kml files successfully --------------\n"
 
 cd kml
 M8T_file=$(ls -l *_M8T.kml | awk '{print $9}')
+if [ "$M8T_file" =  "" ]; then
+	echo 'M8T file does not exist'
+else
+	sed -i '$d' $file	# delete "</Document>"
+	sed -i '$d' $file	# delete "</kml>"
+fi
 cd ..
 
 
 for file in `ls *.log`
 do
 	echo $file
-	final_xyz=`grep "DEBUG R AVE, tot" $file | tail -n 1`
-	echo $final_xyz
-	if [ "$M8T_file" =  "" ]; then
-		/home/jqiu/PycharmProjects/data_handle/analysis_final_pos.py $path'/' $F9P_file "$final_xyz"
-	else
-		/home/jqiu/PycharmProjects/data_handle/add_pos_to_kml.py $path'/' $F9P_file "$final_xyz" $M8T_file $file
+	final_xyz=`grep "DEBUG R AVE, tot" $file | tail -n 1`a
+	if [ -n "$final_xyz" ]; then
+		echo $final_xyz
+	
+		if [ "$M8T_file" =  "" ]; then
+			/home/jqiu/PycharmProjects/data_handle/analysis_final_pos.py $path'/' $F9P_file "$final_xyz"
+		else
+			/home/jqiu/PycharmProjects/data_handle/add_pos_to_kml.py $path'/' $F9P_file "$final_xyz" $M8T_file $file
+		fi
 	fi
 done
 

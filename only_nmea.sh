@@ -6,12 +6,13 @@ then
 fi
 echo '--------- Now deal with the directory -- '"'$1'"
 
+cd $1
 path=`pwd`
 echo $path
 
 
-if [ ! -d "./GGA" ]; then
-        mkdir GGA
+if [ ! -d "./nmea" ]; then
+        mkdir nmea
         for file in `ls *.log *.ubx *.DAT`
         do
                 if [ ${file##*.} == "ubx" ]
@@ -21,21 +22,31 @@ if [ ! -d "./GGA" ]; then
                         rm nmea/${file%.*}".tmp"
                         sed -i "s/^/\$GPGGA,/" nmea/${file%.*}".gga"
                 else
-                        grep "E,1," $file | grep "KF" > nmea/${file%.*}"_KF.gga"
-                        grep "E,1," $file | grep ",\*" | grep -v 'GPGFM' > nmea/${file%.*}"_noKF.gga"
-                        grep "E,1," $file | grep "GPGFM," > nmea/${file%.*}"_noKF.gga"
+                        grep -a "E,1," $file | grep "KF" > nmea/${file%.*}"_KF.gga"
+                        grep -a "E,1," $file | grep ",\*" | grep -v 'GPGFM' > nmea/${file%.*}"_noKF.gga"
+                        grep -a "E,1," $file | grep "GPGFM," > nmea/${file%.*}"_GFM.gga"
                         sed -i "s/\r//g;s/ok//g" nmea/${file%.*}"_noKF.gga"
                         sed -i "s/ok//g" nmea/${file%.*}"_KF.gga"
                         sed -i "s/GPGFM/GPGGA/" nmea/${file%.*}"_GFM.gga"
                 fi
         done
 fi
+
 echo -e "--------- get nmea(gga) files successfully -------------\n"
 
 
-
-for file in `ls GGA/`
-do
-        /home/jqiu/nmea2kml.py "GGA/"$file > kml/${file%.*}".kml"
+mkdir kml -p
+cd nmea
+for file in `ls`
+do	
+	file_len=`wc -c $file | awk '{print $1}'`
+	if [ $file_len -eq 0 ];
+	then
+		rm $file
+	else
+	        /home/jqiu/nmea2kml.py $file > '../kml/'${file%.*}".kml"
+	fi
 done
+cd ..
 
+echo -e "--------- get kml files successfully --------------\n"
