@@ -37,14 +37,18 @@ if [ ! -d "./nmea" ]; then
 		elif [ ${file##*.} == "DAT" ]
 		then
 			grep "E,1," $file | grep "KFP" > nmea/${file%.*}"_KF.nmea"
-                        grep "E,1," $file | grep "GGA" > nmea/${file%.*}"_noKF.nmea"
+			grep "E,1," $file | grep ",\*" | grep -v 'GPGFM' > nmea/${file%.*}"_noKF.nmea"
+			grep "E,1," $file | grep "GPGFM," > nmea/${file%.*}"_GFM.nmea"
                         sed -i "s/\r//g;s/ok//g" nmea/${file%.*}"_noKF.nmea"
-                        sed -i "s/ok//g" nmea/${file%.*}"_KF.nmea"
+                        sed -i "s/GNGGA/GPGGA/" nmea/${file%.*}"_KF.nmea"
+                        sed -i "s/GPGFM/GPGGA/" nmea/${file%.*}"_GFM.nmea"
 		else
 			grep "E,1," $file | grep "KF" > nmea/${file%.*}"_KF.nmea"
-			grep "E,1," $file | grep ",\*" > nmea/${file%.*}"_noKF.nmea"
+			grep "E,1," $file | grep ",\*" | grep -v 'GPGFM' > nmea/${file%.*}"_noKF.nmea"
+			grep "E,1," $file | grep "GPGFM," > nmea/${file%.*}"_noKF.nmea"
 			sed -i "s/\r//g;s/ok//g" nmea/${file%.*}"_noKF.nmea"
 			sed -i "s/ok//g" nmea/${file%.*}"_KF.nmea"
+                        sed -i "s/GPGFM/GPGGA/" nmea/${file%.*}"_GFM.nmea"
 		fi
 	done
 fi
