@@ -34,18 +34,10 @@ if [ ! -d "./nmea" ]; then
 			rm nmea/${file%.*}".tmp"
 			sed -i "s/^/\$GPGGA,/" nmea/${file%.*}".nmea"
 		#	sed -i "s/^\(.*\)\$GN/\$GP/" nmea/${file%.*}".nmea"
-		elif [ ${file##*.} == "DAT" ]
-		then
-			grep "E,1," $file | grep "KFP" > nmea/${file%.*}"_KF.nmea"
-			grep "E,1," $file | grep ",\*" | grep -v 'GPGFM' > nmea/${file%.*}"_noKF.nmea"
-			grep "E,1," $file | grep "GPGFM," > nmea/${file%.*}"_GFM.nmea"
-                        sed -i "s/\r//g;s/ok//g" nmea/${file%.*}"_noKF.nmea"
-                        sed -i "s/GNGGA/GPGGA/" nmea/${file%.*}"_KF.nmea"
-                        sed -i "s/GPGFM/GPGGA/" nmea/${file%.*}"_GFM.nmea"
 		else
-			grep "E,1," $file | grep "KF" > nmea/${file%.*}"_KF.nmea"
-			grep "E,1," $file | grep ",\*" | grep -v 'GPGFM' > nmea/${file%.*}"_noKF.nmea"
-			grep "E,1," $file | grep "GPGFM," > nmea/${file%.*}"_noKF.nmea"
+			grep -a "E,1," $file | grep "KF" > nmea/${file%.*}"_KF.nmea"
+			grep -a "E,1," $file | grep ",\*" | grep -v 'GPGFM' > nmea/${file%.*}"_noKF.nmea"
+			grep -a "E,1," $file | grep "GPGFM," > nmea/${file%.*}"_GFM.nmea"
 			sed -i "s/\r//g;s/ok//g" nmea/${file%.*}"_noKF.nmea"
 			sed -i "s/ok//g" nmea/${file%.*}"_KF.nmea"
                         sed -i "s/GPGFM/GPGGA/" nmea/${file%.*}"_GFM.nmea"
@@ -59,6 +51,7 @@ if [ "$F9P_file" =  "" ]; then
 fi
 
 /home/jqiu/PycharmProjects/data_handle/AVE_ALL_to_GGA.py $path'/' $F9P_file
+/home/jqiu/PycharmProjects/data_handle/get_nomal_gga.py $path'/' $F9P_file
 mv *.gga ./nmea
 
 /home/jqiu/PycharmProjects/data_handle/header_file.py $path'/' $F9P_file
@@ -67,10 +60,10 @@ rm kml -rf
 mkdir kml
 for file in `ls nmea/`
 do
-	file_len=`wc -c $file | awk '{print $1}'`
+	file_len=`wc -c 'nmea/'$file | awk '{print $1}'`
 	if [ $file_len -eq 0 ];
         then
-		rm $file
+		rm 'nmea/'$file
 	else
 		/home/jqiu/nmea2kml.py "nmea/"$file > 'kml/'${file%.*}".kml"
 	fi
@@ -78,12 +71,12 @@ done
 echo -e "--------- get kml files successfully --------------\n"
 
 cd kml
-M8T_file=$(ls -l *_M8T.kml | awk '{print $9}')
+M8T_file=$(ls -l *M8T.kml | awk '{print $9}')
 if [ "$M8T_file" =  "" ]; then
 	echo 'M8T file does not exist'
 else
-	sed -i '$d' $file	# delete "</Document>"
-	sed -i '$d' $file	# delete "</kml>"
+	sed -i '$d' $M8T_file	# delete "</Document>"
+	sed -i '$d' $M8T_file	# delete "</kml>"
 fi
 cd ..
 
@@ -91,7 +84,7 @@ cd ..
 for file in `ls *.log`
 do
 	echo $file
-	final_xyz=`grep "DEBUG R AVE, tot" $file | tail -n 1`a
+	final_xyz=`grep "DEBUG R AVE, tot" $file | tail -n 1`
 	if [ -n "$final_xyz" ]; then
 		echo $final_xyz
 	
