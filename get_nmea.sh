@@ -29,8 +29,9 @@ if [ ! -d "./nmea" ]; then
 	do
 		if [ ${file##*.} == "ubx" ]
 		then
-			grep -a "E,1," $file > nmea/${file%.*}".tmp"
-			`awk 'BEGIN{FS="GGA,"} {print $2}' nmea/${file%.*}".tmp" > nmea/${file%.*}".nmea"`
+			grep -a "E,1," $file > nmea/${file%.*}".nmea"
+			`awk 'BEGIN{FS="GGA,"} {print $2}' nmea/${file%.*}".nmea" > nmea/${file%.*}".tmp"`
+			`cat -v nmea/${file%.*}".tmp" > nmea/${file%.*}".nmea"`
 			rm nmea/${file%.*}".tmp"
 			sed -i "s/^/\$GPGGA,/" nmea/${file%.*}".nmea"
 		#	sed -i "s/^\(.*\)\$GN/\$GP/" nmea/${file%.*}".nmea"
