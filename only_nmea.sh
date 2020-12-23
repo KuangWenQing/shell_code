@@ -25,8 +25,8 @@ if [ ! -d "./nmea" ]; then
                         grep -a "E,1," $file | grep "KF" > nmea/${file%.*}"_KF.gga"
                         grep -a "E,1," $file | grep ",\*" | grep -v 'GPGFM' > nmea/${file%.*}"_noKF.gga"
                         grep -a "E,1," $file | grep "GPGFM," > nmea/${file%.*}"_GFM.gga"
-                        sed -i "s/\r//g;s/ok//g" nmea/${file%.*}"_noKF.gga"
-                        sed -i "s/ok//g" nmea/${file%.*}"_KF.gga"
+                        sed -i "s/\r//g;s/GPKFP/GPGGA/g" nmea/${file%.*}"_noKF.gga"
+                        sed -i "s/GPKFP/GPGGA/g" nmea/${file%.*}"_KF.gga"
                         sed -i "s/GPGFM/GPGGA/" nmea/${file%.*}"_GFM.gga"
                 fi
         done
@@ -44,7 +44,8 @@ do
 	then
 		rm $file
 	else
-	        /home/jqiu/nmea2kml.py $file > '../kml/'${file%.*}".kml"
+		echo "transformation $file 			to kml"
+		/home/jqiu/nmea2kml.py $file > '../kml/'${file%.*}".kml"
 	fi
 done
 cd ..

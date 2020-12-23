@@ -29,7 +29,7 @@ if [ ! -d "./nmea" ]; then
 	do
 		if [ ${file##*.} == "ubx" ]
 		then
-			grep "E,1," $file -a > nmea/${file%.*}".tmp"
+			grep -a "E,1," $file > nmea/${file%.*}".tmp"
 			`awk 'BEGIN{FS="GGA,"} {print $2}' nmea/${file%.*}".tmp" > nmea/${file%.*}".nmea"`
 			rm nmea/${file%.*}".tmp"
 			sed -i "s/^/\$GPGGA,/" nmea/${file%.*}".nmea"
@@ -65,6 +65,7 @@ do
         then
 		rm 'nmea/'$file
 	else
+		echo "transformation $file 			to kml"
 		/home/jqiu/nmea2kml.py "nmea/"$file > 'kml/'${file%.*}".kml"
 	fi
 done
@@ -84,7 +85,7 @@ cd ..
 for file in `ls *.log`
 do
 	echo $file
-	final_xyz=`grep "DEBUG R AVE, tot" $file | tail -n 1`
+	final_xyz=`grep -a "DEBUG R AVE, tot" $file | tail -n 1`
 	if [ -n "$final_xyz" ]; then
 		echo $final_xyz
 	
