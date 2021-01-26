@@ -31,10 +31,16 @@ if [ ! -d "./nmea" ]; then
 		then
 			grep -a "E,1," $file > nmea/${file%.*}".nmea"
 			`awk 'BEGIN{FS="GGA,"} {print $2}' nmea/${file%.*}".nmea" > nmea/${file%.*}".tmp"`
-			`cat -v nmea/${file%.*}".tmp" > nmea/${file%.*}".nmea"`
+			`cat nmea/${file%.*}".tmp" > nmea/${file%.*}".nmea"`	# 除去 \r
 			rm nmea/${file%.*}".tmp"
 			sed -i "s/^/\$GPGGA,/" nmea/${file%.*}".nmea"
 		#	sed -i "s/^\(.*\)\$GN/\$GP/" nmea/${file%.*}".nmea"
+			
+			grep -Ea "GGA|RMC" $file | grep -Ea ",A,|E,1" > nmea/${file%.*}".rmcgga"
+			`awk 'BEGIN{FS="GN"} {print $2}' nmea/${file%.*}".rmcgga" > nmea/gga_rmc.noGP`
+			`cat nmea/gga_rmc.noGP > nmea/${file%.*}".rmcgga"`
+			rm nmea/gga_rmc.noGP
+			sed -i "s/^/\$GP/" nmea/${file%.*}".rmcgga"
 		else
 			grep -a "E,1," $file | grep "KF" > nmea/${file%.*}"_KF.nmea"
 			grep -a "E,1," $file | grep ",\*" | grep -v 'GPGFM' > nmea/${file%.*}"_noKF.nmea"
@@ -46,6 +52,7 @@ if [ ! -d "./nmea" ]; then
 	done
 fi
 echo -e "--------- get nmea(gga) files successfully -------------\n"
+# exit 1
 
 if [ "$F9P_file" =  "" ]; then
 	 F9P_file='noF9P'
